@@ -20,7 +20,7 @@ export default async function handler(req: any, res: any) {
 
     const data = await resend.emails.send({
       from: 'Marola Travel <hola@marolatrips.com>',
-      to: ['valenrodriguez2297@gmail.com'],
+      to: [process.env.CONTACT_EMAIL],
       subject: 'Nueva reserva Marola 🌴',
       html: `
         <h2>Nueva reserva</h2>

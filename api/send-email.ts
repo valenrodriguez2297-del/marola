@@ -1,34 +1,38 @@
-import { Resend } from "resend";
+import { Resend } from 'resend';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).end();
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
   }
 
-  const { name, email, whatsapp } = req.body;
+  if (req.method !== 'POST') {
+    return res.status(405).json({ error: 'Method not allowed' });
+  }
 
   try {
-    await resend.emails.send({
-      from: "Marola <hola@marolatrips.com>",
-      to: [email],
-      subject: "Tu viaje a Ubatuba 🌊",
+    const { name, email, whatsapp } = req.body;
+
+    const data = await resend.emails.send({
+      from: 'Marola Trips <onboarding@resend.dev>',
+      to: ['TUEMAIL@gmail.com'],
+      subject: 'Nueva reserva',
       html: `
-        <h2>Hola ${name}!</h2>
-        <p>Ya estás un paso más cerca de Ubatuba.</p>
-        <p>Te dejamos la propuesta del viaje acá 👇</p>
+        <h2>Nueva reserva</h2>
+        <p><strong>Nombre:</strong> ${name}</p>
+        <p><strong>Email:</strong> ${email}</p>
+        <p><strong>WhatsApp:</strong> ${whatsapp}</p>
       `,
-      attachments: [
-        {
-          filename: "marola-ubatuba.pdf",
-          path: "https://TU-DOMINIO.com/pdf/marola.pdf"
-        }
-      ]
     });
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, data });
+
   } catch (error) {
-    return res.status(500).json({ error });
+    return res.status(500).json({ error: 'Error sending email' });
   }
 }

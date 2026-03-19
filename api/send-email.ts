@@ -19,9 +19,9 @@ export default async function handler(req, res) {
     const { name, email, whatsapp } = req.body;
 
     const data = await resend.emails.send({
-      from: 'Marola Trips <onboarding@resend.dev>',
+      from: 'Marola Travel <hola@marolatrips.com>',
       to: ['TUEMAIL@gmail.com'],
-      subject: 'Nueva reserva',
+      subject: 'Nueva reserva Marola 🌴',
       html: `
         <h2>Nueva reserva</h2>
         <p><strong>Nombre:</strong> ${name}</p>
@@ -33,6 +33,7 @@ export default async function handler(req, res) {
     return res.status(200).json({ success: true, data });
 
   } catch (error) {
+    console.error(error);
     return res.status(500).json({ error: 'Error sending email' });
   }
 }

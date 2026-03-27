@@ -23,8 +23,8 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Descargar el PDF desde Google Drive
-    const pdfUrl = 'https://drive.google.com/uc?export=download&id=14xlI5iMy_FBecufwB-WBweEgCSY46RgL';
+    // Descargar el PDF desde Supabase Storage
+    const pdfUrl = 'https://omxerfghepeohugbeywi.supabase.co/storage/v1/object/public/document/ITINERARIO%20UBATUBA%202026.pdf';
     const pdfResponse = await fetch(pdfUrl);
 
     if (!pdfResponse.ok) {

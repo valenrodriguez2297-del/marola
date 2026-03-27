@@ -1,11 +1,9 @@
 // File: pages/api/send-reservation.ts
 import { Resend } from 'resend';
 
-// Asegurate de tener RESEND_API_KEY y CONTACT_EMAIL en tus variables de entorno
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export default async function handler(req: any, res: any) {
-  // Headers CORS para permitir que tu frontend llame la API
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -25,10 +23,20 @@ export default async function handler(req: any, res: any) {
       return res.status(400).json({ error: 'Missing required fields' });
     }
 
-    // Envío de email usando Resend
+    // Descargar el PDF desde Google Drive
+    const pdfUrl = 'https://drive.google.com/uc?export=download&id=14xlI5iMy_FBecufwB-WBweEgCSY46RgL';
+    const pdfResponse = await fetch(pdfUrl);
+
+    if (!pdfResponse.ok) {
+      throw new Error('No se pudo descargar el PDF');
+    }
+
+    const pdfBuffer = await pdfResponse.arrayBuffer();
+    const pdfBase64 = Buffer.from(pdfBuffer).toString('base64');
+
     const data = await resend.emails.send({
       from: 'Marola Travel <hola@marolatrips.com>',
-      to: [process.env.CONTACT_EMAIL], // tu variable de entorno
+      to: [process.env.CONTACT_EMAIL],
       subject: 'Nueva reserva Marola 🌴',
       html: `
         <h2>Nueva reserva</h2>
@@ -36,9 +44,16 @@ export default async function handler(req: any, res: any) {
         <p><strong>Email:</strong> ${email}</p>
         <p><strong>WhatsApp:</strong> ${whatsapp}</p>
       `,
+      attachments: [
+        {
+          filename: 'ITINERARIO UBATUBA 2026.pdf',
+          content: pdfBase64,
+        },
+      ],
     });
 
     return res.status(200).json({ success: true, data });
+
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: 'Error sending email' });
